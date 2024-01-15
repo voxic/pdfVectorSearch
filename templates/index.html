@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <title>Atlas Vector and Lexical Search Demo</title>
+</head>
+<body class="bg-gray-100 font-sans leading-normal text-gray-900">
+    <div class="container mx-auto m-8">
+        <h1 class="text-4xl mb-8">Atlas Vector and Lexical Search Demo</h1>
+        <h2 class="text-2xl mb-8">Do semantic search of your content. Useful for FAQ search, documentation, articles and much more.</h2>
+
+        <!-- Question form -->
+        <form method="post" class="mb-8">
+            <div class="mb-4">
+                <label for="question" class="block text-gray-700 text-sm font-bold mb-2">Your question:</label>
+                <input type="text" id="question" name="question" required 
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Submit
+                </button>
+            </div>
+        </form>
+
+        {% if last_used_question %}
+        <div class="mb-4">
+            <strong class="text-gray-700">Last Used Question:</strong>
+            <p>{{ last_used_question }}</p>
+        </div>
+        {% endif %}
+
+<!-- Is this what you are looking for? Section -->
+<div class="mb-4">
+    <h2 class="text-2xl">Is this what you are looking for?</h2>
+    {% if answers_vector and last_used_question|wordcount > 1 %}
+        {% set first_answer = answers_vector[0] %}
+    {% elif answers_lexical %}
+        {% set first_answer = answers_lexical[0] %}
+    {% else %}
+        {% set first_answer = answers_vector[0] %}
+    {% endif %}
+    {% if first_answer %}
+        <div class="p-6 bg-white shadow rounded-lg flex items-center">
+            {% if first_answer.type == 'faq' %}
+            <!-- Icon for faq -->
+            <img src="{{ url_for('static', filename='faq.png') }}" alt="FAQ Icon" class="h-full w-12 mr-8">
+            {% elif first_answer.type == 'assembly' %}
+            <!-- Icon for Assembly -->
+            <img src="{{ url_for('static', filename='assembly.png') }}" alt="Assembly Icon" class="h-full w-12 mr-8">
+            {% elif first_answer.type == 'customerService' %}
+            <!-- Icon for customerService -->
+            <img src="{{ url_for('static', filename='customerService.png') }}" alt="Customer Service Icon" class="h-full w-12 mr-8">
+            {% endif %}
+            <div>
+                <p class="text-gray-700 font-semibold">PDF: {{ first_answer.pdf }}</p>
+                <p><strong class="text-gray-700 font-semibold">Page:</strong> {{ first_answer.page }}</p>
+                <p><strong class="text-gray-700 font-semibold">Sentence:</strong> {{ first_answer.sentence }}</p>
+                <p>
+                    <strong class="text-gray-700 font-semibold">Link:</strong>
+                    <a href="{{ url_for('static', filename='pdfs/' + first_answer.pdf) }}#page={{ first_answer.page }}" target="_blank" class="text-blue-500 hover:underline">
+                        {{ first_answer.pdf }} (page {{ first_answer.page }})
+                    </a>
+                </p>
+                <p><strong class="text-gray-700 font-semibold">Type:</strong> {{ first_answer.type }}</p>
+            </div>
+        </div>
+    {% else %}
+        <p>No relevant results found.</p>
+    {% endif %}
+</div>
+
+<!-- Results -->
+{% if answers_vector or answers_lexical %}
+<h2 class="text-2xl mb-4">Results:</h2>
+<div class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+        <!-- Vector Results Column -->
+        <div>
+            <h3 class="text-xl mb-2">Semantic Results:</h3>
+            {% for answer in answers_vector %}
+            <div class="p-6 bg-white shadow rounded-lg flex items-center mb-4">
+                {% if answer.type == 'faq' %}
+                <!-- Icon for faq -->
+                <img src="{{ url_for('static', filename='faq.png') }}" alt="FAQ Icon" class="h-full w-12 mr-8">
+                {% elif answer.type == 'assembly' %}
+                <!-- Icon for Assembly -->
+                <img src="{{ url_for('static', filename='assembly.png') }}" alt="Assembly Icon" class="h-full w-12 mr-8">
+                {% elif answer.type == 'customerService' %}
+                <!-- Icon for customerService -->
+                <img src="{{ url_for('static', filename='customerService.png') }}" alt="Assembly Icon" class="h-full w-12 mr-8">
+                {% endif %}
+                <div>
+                    <p class="text-gray-700 font-semibold">PDF: {{ answer.pdf }}</p>
+                    <p><strong class="text-gray-700 font-semibold">Page:</strong> {{ answer.page }}</p>
+                    <p><strong class="text-gray-700 font-semibold">Sentence:</strong> {{ answer.sentence }}</p>
+                    <p>
+                        <strong class="text-gray-700 font-semibold">Link:</strong>
+                        <a href="{{ url_for('static', filename='pdfs/' + answer.pdf) }}#page={{ answer.page }}" target="_blank" class="text-blue-500 hover:underline">
+                            {{ answer.pdf }} (page {{ answer.page }})
+                        </a>
+                    </p>
+                    <p><strong class="text-gray-700 font-semibold">Type:</strong> {{ answer.type }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Lexical Results Column -->
+        <div>
+            <h3 class="text-xl mb-2">Lexical Results:</h3>
+            {% for answer in answers_lexical %}
+            <div class="p-6 bg-white shadow rounded-lg flex items-center mb-4">
+                {% if answer.type == 'faq' %}
+                <!-- Icon for faq -->
+                <img src="{{ url_for('static', filename='faq.png') }}" alt="FAQ Icon" class="h-full w-12 mr-8">
+                {% elif answer.type == 'assembly' %}
+                <!-- Icon for Assembly -->
+                <img src="{{ url_for('static', filename='assembly.png') }}" alt="Assembly Icon" class="h-full w-12 mr-8">
+                {% elif answer.type == 'customerService' %}
+                <!-- Icon for customerService -->
+                <img src="{{ url_for('static', filename='customerService.png') }}" alt="Assembly Icon" class="h-full w-12 mr-8">
+                {% endif %}
+                <div>
+                    <p class="text-gray-700 font-semibold">PDF: {{ answer.pdf }}</p>
+                    <p><strong class="text-gray-700 font-semibold">Page:</strong> {{ answer.page }}</p>
+                    <p><strong class="text-gray-700 font-semibold">Sentence:</strong> {{ answer.sentence }}</p>
+                    <p>
+                        <strong class="text-gray-700 font-semibold">Link:</strong>
+                        <a href="{{ url_for('static', filename='pdfs/' + answer.pdf) }}#page={{ answer.page }}" target="_blank" class="text-blue-500 hover:underline">
+                            {{ answer.pdf }} (page {{ answer.page }})
+                        </a>
+                    </p>
+                    <p><strong class="text-gray-700 font-semibold">Type:</strong> {{ answer.type }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mt-8">
+            {% for category, message in messages %}
+            <div class="bg-blue-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3" role="alert">
+                <p class="font-bold">{{ category }}</p>
+                <p class="text-sm">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

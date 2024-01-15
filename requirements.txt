@@ -1,0 +1,5 @@
+
+PyPDF2
+sentence_transformers
+pymongo
+flask
