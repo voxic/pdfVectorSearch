@@ -96,6 +96,7 @@ Create a vector search index on the collection:
 
 ### UI
 
+![UI](images/screenshot.png)
 To run the UI launch
 
 ```bash
