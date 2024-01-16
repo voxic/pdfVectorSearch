@@ -110,3 +110,7 @@ For the links to work, make sure you place your PDF files in the `static/pdfs` f
 You are now ready to search your vast PDF library for the PDFs that may hold the answers to your questions.
 
 Your query will be mapped using the same sentence transformer that was used to encode the data and then submitted to Atlas Search.
+
+## Credit
+
+Demo based on https://github.com/wbleonard/atlas-vector-search-pdf
